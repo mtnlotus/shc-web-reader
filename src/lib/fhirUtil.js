@@ -3,7 +3,7 @@ const NA = "Unknown";
 
 // +--------------------+
 // | renderOrganization |
-// | renderOrgOrPerson  | |
+// | renderOrgOrPerson  | 
 // +--------------------+
 
 export function renderOrganization(org, resources) {
