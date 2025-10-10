@@ -118,12 +118,12 @@ const normalizeLanguageCode = (languageCode) => {
   const code = languageCode.toLowerCase().trim();
 
   // English variants
-  if (code === 'en' || code === 'en-us' || code === 'en-ca' || code === 'english') {
+  if (code === 'en' || code.startsWith('en-') || code === 'english') {
     return 'en';
   }
 
   // French variants
-  if (code === 'fr' || code === 'fr-ca' || code === 'fr-fr' || code === 'french' || code === 'français') {
+  if (code === 'fr' || code.startsWith('fr-') || code === 'french' || code === 'français') {
     return 'fr';
   }
 
@@ -160,7 +160,7 @@ export const detectLanguageFromText = (text) => {
     }
   }
 
-  // Check for English patterns
+  // Check for English patternsp
   for (const pattern of englishPatterns) {
     if (pattern.test(text)) {
       englishScore++;
@@ -169,8 +169,10 @@ export const detectLanguageFromText = (text) => {
 
   // Return the language with higher score, or null if scores are equal
   if (frenchScore > englishScore) {
+	console.log(`Detected FR by content (fr=${frenchScore} en=${englishScore})`);
     return 'fr';
   } else if (englishScore > frenchScore) {
+	console.log(`Detected EN by content (fr=${frenchScore} en=${englishScore})`);
     return 'en';
   }
 
