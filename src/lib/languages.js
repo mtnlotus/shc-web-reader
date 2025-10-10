@@ -2,6 +2,7 @@ export const languages = {
   en: {
     // App.js
     aboutTab: 'About',
+    scanTab: 'Scan Card',
     fileTab: 'Open file',
     photoTab: 'Use your camera',
     searchTab: 'Search Record',
@@ -120,6 +121,7 @@ export const languages = {
   fr: {
     // App.js
     aboutTab: 'À propos',
+    scanTab: 'Scan Card',
     fileTab: 'Ouvrir un fichier',
     photoTab: 'Utiliser votre caméra',
     searchTab: 'Rechercher un dossier',

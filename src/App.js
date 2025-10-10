@@ -61,7 +61,7 @@ function AppContent() {
 		  variant='scrollable'>
 
 		  <Tab label={t('aboutTab')} value={TabValue.About} />
-		  { config("showScan") && <Tab label='Scan Card' value={TabValue.Scan} /> }
+		  { config("showScan") && <Tab label={t('scanTab')} value={TabValue.Scan} /> }
 		  { config("showFile") && <Tab label={t('fileTab')} value={TabValue.File} /> }
 		  { config("showPhoto") && <Tab label={t('photoTab')} value={TabValue.Photo} /> }
 		  { fhir && config("showSearch") && <Tab label={t('searchTab')} value={TabValue.Search} /> }
