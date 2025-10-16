@@ -122,7 +122,7 @@ export const languages = {
   fr: {
     // App.js
     aboutTab: 'À propos',
-    scanTab: 'Scan Card (NEED_FR)',
+    scanTab: 'Numériser une carte',
     fileTab: 'Ouvrir un fichier',
     photoTab: 'Utiliser votre caméra',
     searchTab: 'Rechercher un dossier',
@@ -132,7 +132,7 @@ export const languages = {
     aboutTitle: 'Lecteur de carte de santé SMART',
     aboutSubtitle: 'Lit et vérifie les cartes de santé SMART',
     getStarted: 'Débuter',
-    scanDescriptionShort: 'Use a 2D barcode scanner (NEED_FR)',
+    scanDescriptionShort: 'Utiliser un lecteur de codes-barres 2D',
     photoDescriptionShort: 'Commencer à numériser en utilisant votre caméra',
     fileDescriptionShort:  "Le lecteur peut généralement lire les fichiers portant l'extension .smart-health-card ou .fhir.",
     aboutContent: 'Ce lecteur est une modification du ',
@@ -236,8 +236,7 @@ export const languages = {
     validation2: 'valide',
     validation3: 'et a été émise par le',
     validation4: 'le',
-	noRevocation: 'Because this issuer does not support revocation, details may have changed since that time. (NEED_FR)',
-
+    noRevocation: "Puisque cet émetteur n'effectue pas de révocation, certains details pourraient avoir changé depuis cette date.",
 
 
   }
