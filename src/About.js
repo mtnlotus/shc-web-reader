@@ -18,16 +18,17 @@ export default function About({ setTab, tabValues }) {
 	return(<p><Button variant='contained' onClick={ () => setTab(tab) }>{text}</Button></p>);
   }
 
-  const commonsLink = lnk(t('aboutContent5'), "https://www.thecommonsproject.org/");
-  const smartLink = lnk(t('aboutContent7'), "https://smarthealth.cards/");
+  const commonsLink = lnk(t('aboutContent2'), "https://www.thecommonsproject.org/");
 
-  const srcLink = lnk(t('aboutContent3'),
+  const srcLink = lnk(t('aboutContent4'),
 					  "https://github.com/the-commons-project/shc-web-reader");
 
-  const covidLink = lnk("COVID-19 vaccine cards",
+  const smartLink = lnk(t('aboutContent6'), "https://smarthealth.cards/");
+
+  const covidLink = lnk(t('aboutContent8'),
 						"https://smarthealth.cards/en/find-my-issuer.html");
 
-  const ipsLink = lnk("International Patient Summaries",
+  const ipsLink = lnk(t('aboutContent10'),
 					  "https://international-patient-summary.net/");
 
 
@@ -45,20 +46,20 @@ export default function About({ setTab, tabValues }) {
 		{ config("showScan") && renderTabButton(tabValues.Scan, t('scanDescriptionShort')) }
 		{ config("showPhoto") && renderTabButton(tabValues.Photo, t('photoDescriptionShort')) }
 		{ config("showFile") && renderTabButton(tabValues.File, t('openFileText')) }
-		{ config("showScan") && renderTabButton(tabValues.Scan, "Type or paste a code") }
-		{ fhir && config("showSearch") && renderTabButton(tabValues.Search, "Find a code in patient record") }
+		{ config("showScan") && renderTabButton(tabValues.Scan, t('typeOrPaste')) }
+		{ fhir && config("showSearch") && renderTabButton(tabValues.Search, t('findCode')) }
 	  </div>
 
 	  <div className={styles.deets} >
 		<p>
-		  {t('aboutContent4')} {commonsLink}{t('aboutContent2')} {srcLink} {t('aboutContent6')} {smartLink}.
-		  Supported data types currently include {covidLink}, general immunization
-		  records, {ipsLink}, and Digital Health Insurance Cards.
+			{t('aboutContent1')} {commonsLink}, {t('aboutContent3')} {srcLink} {t('aboutContent5')} {smartLink}.
+			{' '}
+			{t('aboutContent7')} {covidLink}, {t('aboutContent9')}, {ipsLink}, {t('aboutContent11')}.
 		</p>
 		<p>
-		  If you would like to host the viewer yourself, contribute features or fixes
-		  to the project, or have any other questions, please contact {commonsLink}.
-		  {t('aboutPrivacy')}
+			{t('aboutContributing')} {commonsLink}.
+			{' '}
+			{t('aboutPrivacy')}.
 		</p>
 	  </div>
 	</div>
