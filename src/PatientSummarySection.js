@@ -4,6 +4,7 @@ import { Button } from '@mui/material';
 import IFrameSandbox from './IFrameSandbox.js';
 import DOMPurify from 'dompurify';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
+import { useLanguage } from './lib/LanguageContext';
 
 import styles from './PatientSummary.module.css';
 
@@ -13,7 +14,8 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   const SONLY = "structured_only";
   const NTOGGLE = "narrative_toggle";
   const STOGGLE = "structured_toggle";
-  
+
+  const { t } = useLanguage();
   const [ viewState, setViewState ] = useState(undefined);
 
   // +---------------------+
@@ -92,10 +94,13 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   // | renderStructured |
   // +------------------+
 
-  const renderStructured = () => {
+  /**
+   * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+   */
+  const renderStructured = (t) => {
 	const tableState = {};
 	for (const i in s.entry) ftabs.addResource(rmap[s.entry[i].reference], tableState, rmap);
-	return(ftabs.renderJSX(tableState, styles.fhirTable, rmap, dcr));
+	return(ftabs.renderJSX(tableState, styles.fhirTable, rmap, dcr, t));
   }
 
   // +-------------+
@@ -106,7 +111,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
 
   const toggle = (viewState === NTOGGLE || viewState === STOGGLE ? renderToggle() : undefined);
   const narrative = (viewState === NONLY || viewState === NTOGGLE ? renderNarrative() : undefined);
-  const structured = (viewState === SONLY || viewState === STOGGLE ? renderStructured() : undefined);
+  const structured = (viewState === SONLY || viewState === STOGGLE ? renderStructured(t) : undefined);
 
   const fallback = (narrative || structured ? undefined : <div>no data</div>);
 	
