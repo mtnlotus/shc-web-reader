@@ -3,8 +3,11 @@ import PatientSummarySection from './PatientSummarySection.js';
 import styles from './PatientSummary.module.css';
 import IFrameSandbox from './IFrameSandbox.js';
 import DOMPurify from 'dompurify';
+import { useLanguage } from './lib/LanguageContext';
 
 export default function PatientSummary({ organized, dcr }) {
+  const { t } = useLanguage();
+
   // +----------------+
   // | renderSections |
   // +----------------+
@@ -33,7 +36,7 @@ export default function PatientSummary({ organized, dcr }) {
   // Conditionally render Composition row
   const compositionRow = compositionDivTextContent ? (
     <>
-      <div className={styles.sectionTitle}>Composition</div>
+      <div className={styles.sectionTitle}>{t('composition')}</div>
       <div>
         <IFrameSandbox html={DOMPurify.sanitize(compositionDivTextContent)} />
       </div>
@@ -44,13 +47,13 @@ export default function PatientSummary({ organized, dcr }) {
     <div className={styles.container}>
       <h2>{comp.title}</h2>
       <div className={styles.dataTable}>
-        <div className={styles.sectionTitle}>Patient</div>
+        <div className={styles.sectionTitle}>{t('patient')}</div>
         <div className={styles.patCell}>{futil.renderPerson(comp.subject, rmap)}</div>
 
         {renderSections()}
 
         {compositionRow}
-        <div className={styles.sectionTitle}>Summary prepared by</div>
+        <div className={styles.sectionTitle}>{t('summaryPreparedBy')}</div>
         <div>{authors}</div>
       </div>
     </div>

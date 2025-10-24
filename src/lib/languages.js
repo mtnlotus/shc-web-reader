@@ -63,10 +63,9 @@ export const languages = {
     dateInvalid: 'Date Invalid',
 
     // PatientSummary.js
-    patientInfo: 'Patient Information',
-    name: 'Name',
-    birthDate: 'Date of Birth',
-    identifier: 'Identifier',
+    composition: 'Composition',
+    patient: 'Patient',
+    summaryPreparedBy: 'Summary prepared by',
 
     // ImmunizationHistory.js
     immunizationHistory: 'Immunization History',
@@ -230,10 +229,9 @@ export const languages = {
     invalidValidation: 'invalide',
 
     // PatientSummary.js
-    patientInfo: 'Informations du patient',
-    name: 'Nom',
-    birthDate: 'Date de naissance',
-    identifier: 'Identifiant',
+    composition: 'Composition',
+    patient: 'Patient',
+    summaryPreparedBy: 'Résumé préparé par',
 
     // ImmunizationHistory.js
     immunizationHistory: 'Historique de vaccination',
