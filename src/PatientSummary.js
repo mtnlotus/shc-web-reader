@@ -30,7 +30,7 @@ export default function PatientSummary({ organized, dcr }) {
   const comp = organized.byType.Composition[0];
   const rmap = organized.byId;
 
-  const authors = comp.author.map((a) => futil.renderOrgOrPerson(a, rmap));
+  const authors = comp.author.map((a) => futil.renderGenerator(a, rmap));
   const compositionDivTextContent = comp.text && comp.text.div ? comp.text.div : '';
 
   // Conditionally render Composition row
