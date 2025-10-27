@@ -8,13 +8,27 @@ const LanguageContext = createContext();
  * @returns {string} 'en' or 'fr'
  */
 function getBrowserLanguage() {
-  const browserLang = navigator.language || navigator.languages?.[0] || 'en';
+  // Check navigator.languages array if available
+  if (navigator.languages && navigator.languages.length > 0) {
+    // Determine whether fr or en is a preferred language
+    for (const lang of navigator.languages) {
+      const lowerLang = lang.toLowerCase();
+      if (lowerLang.startsWith('fr')) {
+        return 'fr';
+      }
+      if (lowerLang.startsWith('en')) {
+        return 'en';
+      }
+    }
+  }
 
-  // Normalize to 'en' or 'fr'
+  // Fall back to navigator.language
+  const browserLang = navigator.language || 'en';
   if (browserLang.toLowerCase().startsWith('fr')) {
     return 'fr';
   }
-  return 'en'; // Default to English for all other languages
+
+  return 'en';
 }
 
 /**
