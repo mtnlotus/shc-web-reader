@@ -66,6 +66,13 @@ export const languages = {
     composition: 'Composition',
     patient: 'Patient',
     summaryPreparedBy: 'Summary prepared by',
+    ipsSection_11450_4: 'Active Problems',
+    ipsSection_11348_0: 'Past Medical History',
+    ipsSection_10160_0: 'Medication',
+    ipsSection_48765_2: 'Allergies and Intolerances',
+    ipsSection_8716_3: 'Vital Signs',
+    ipsSection_30954_2: 'Laboratory Results',
+    ipsSection_11369_6: 'Immunizations',
 
     // ImmunizationHistory.js
     immunizationHistory: 'Immunization History',
@@ -232,6 +239,13 @@ export const languages = {
     composition: 'Composition',
     patient: 'Patient',
     summaryPreparedBy: 'Résumé préparé par',
+    ipsSection_11450_4: 'Problèmes actifs',
+    ipsSection_11348_0: 'Antécédents médicaux',
+    ipsSection_10160_0: 'Médicaments',
+    ipsSection_48765_2: 'Allergies et intolérances',
+    ipsSection_8716_3: 'Signes vitaux',
+    ipsSection_30954_2: 'Résultats de laboratoire',
+    ipsSection_11369_6: 'Vaccins',
 
     // ImmunizationHistory.js
     immunizationHistory: 'Historique de vaccination',

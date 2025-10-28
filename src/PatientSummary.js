@@ -13,11 +13,14 @@ export default function PatientSummary({ organized, dcr }) {
   // +----------------+
   const renderSections = () => {
     return comp.section.flatMap((s) => {
+      const coding = s.code.coding[0];
+      const translationKey = `ipsSection_${coding.code.replaceAll('-', '_')}`
+
       return [
-        <div key={`${s.title}-title`} className={styles.sectionTitle}>
-          {s.title}
+        <div key={`${coding.code}-title`} className={styles.sectionTitle}>
+          {t(translationKey, s.title)}
         </div>,
-        <div key={`${s.title}-content`} className={styles.sectionContent}>
+        <div key={`${coding.code}-content`} className={styles.sectionContent}>
           <PatientSummarySection s={s} rmap={rmap} dcr={dcr} />
         </div>
       ];

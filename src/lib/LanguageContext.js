@@ -48,7 +48,7 @@ function getInitialLanguage() {
 
 export function LanguageProvider({ children }) {
   const [currentLanguage, setCurrentLanguage] = useState(getInitialLanguage);
-  const t = (key) => languages[currentLanguage][key] || key;
+  const t = (key, fallback) => languages[currentLanguage][key] || fallback || key;
 
   // Save language preference to localStorage whenever it changes
   useEffect(() => {
