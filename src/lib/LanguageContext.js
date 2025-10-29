@@ -23,8 +23,7 @@ function getBrowserLanguage() {
   }
 
   // Fall back to navigator.language
-  const browserLang = navigator.language || 'en';
-  if (browserLang.toLowerCase().startsWith('fr')) {
+  if (navigator.language.toLowerCase().startsWith('fr')) {
     return 'fr';
   }
 
