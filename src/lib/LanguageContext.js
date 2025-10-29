@@ -47,6 +47,7 @@ function getInitialLanguage() {
 
 export function LanguageProvider({ children }) {
   const [currentLanguage, setCurrentLanguage] = useState(getInitialLanguage);
+  const [bundleLanguage, setCurrentBundleLanguage] = useState('en');
   const t = (key, fallback) => languages[currentLanguage][key] || fallback || key;
 
   // Save language preference to localStorage whenever it changes
@@ -64,8 +65,14 @@ export function LanguageProvider({ children }) {
     }
   };
 
+  const setBundleLanguage = (language) => {
+    if (language === 'en' || language === 'fr') {
+      setCurrentBundleLanguage(language);
+    }
+  }
+
   return (
-    <LanguageContext.Provider value={{ currentLanguage, t, toggleLanguage, setLanguage }}>
+    <LanguageContext.Provider value={{ currentLanguage, t, toggleLanguage, setLanguage, bundleLanguage, setBundleLanguage }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -9,13 +9,14 @@ import * as res from './lib/resources.js';
 import ValidationInfo from './ValidationInfo.js';
 import WrongPatientWarning from './WrongPatientWarning.js';
 import { useLanguage } from './lib/LanguageContext';
+import { detectLanguageFromSHCComprehensive } from './lib/languageDetection.js';
 
 import Coverage from './Coverage.js';
 import ImmunizationHistory from './ImmunizationHistory.js'
 import PatientSummary from './PatientSummary.js';
 
 export default function Data({ shx }) {
-  const { t } = useLanguage();
+  const { t, setBundleLanguage } = useLanguage();
 
   const [passcode, setPasscode] = useState(undefined);
   const [shxResult, setShxResult] = useState(undefined);
@@ -204,11 +205,20 @@ export default function Data({ shx }) {
     verifySHX(shx, passcode)
         .then(result => {
             setShxResult(result);
+
+            // Auto-detect and set language from SHC data
+            if (result && result.shxStatus === SHX_STATUS_OK) {
+              const detectedLanguage = detectLanguageFromSHCComprehensive(result);
+              if (detectedLanguage) {
+                console.log(`Auto-detected language from SHC: ${detectedLanguage}`);
+                setBundleLanguage(detectedLanguage);
+              }
+            }
         })
         .catch(error => {
             // Handle the error appropriately
         });
-  }, [shx, passcode]);
+  }, [shx, passcode, setBundleLanguage]);
 
 
   useEffect(() => {
