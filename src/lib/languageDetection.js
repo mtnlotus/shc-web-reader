@@ -31,6 +31,16 @@ export const detectLanguageFromSHC = (shxResult) => {
 const extractLanguageFromBundle = (bundle) => {
   if (!bundle.entry) return null;
 
+  // Check the bundle itself first and use the declared language.
+  if (bundle.language) {
+    const language = normalizeLanguageCode(bundle.language);
+    
+    if (language) {
+      return language;
+    }
+  }
+  
+  // Otherwise, try to find the language in the bundle's entries.
   for (const entry of bundle.entry) {
     if (entry.resource) {
       const language = extractLanguageFromResource(entry.resource);
