@@ -94,10 +94,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   // | renderStructured |
   // +------------------+
 
-  /**
-   * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
-   */
-  const renderStructured = (t) => {
+  const renderStructured = () => {
 	const tableState = {};
 	for (const i in s.entry) ftabs.addResource(rmap[s.entry[i].reference], tableState, rmap);
 	return(ftabs.renderJSX(tableState, styles.fhirTable, rmap, dcr, t));
@@ -111,7 +108,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
 
   const toggle = (viewState === NTOGGLE || viewState === STOGGLE ? renderToggle() : undefined);
   const narrative = (viewState === NONLY || viewState === NTOGGLE ? renderNarrative() : undefined);
-  const structured = (viewState === SONLY || viewState === STOGGLE ? renderStructured(t) : undefined);
+  const structured = (viewState === SONLY || viewState === STOGGLE ? renderStructured() : undefined);
 
   const fallback = (narrative || structured ? undefined : <div>no data</div>);
 	
