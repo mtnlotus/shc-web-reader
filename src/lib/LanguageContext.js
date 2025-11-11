@@ -48,7 +48,15 @@ function getInitialLanguage() {
 export function LanguageProvider({ children }) {
   const [currentLanguage, setCurrentLanguage] = useState(getInitialLanguage);
   const [bundleLanguage, setCurrentBundleLanguage] = useState('en');
-  const t = (key, fallback) => languages[currentLanguage][key] || fallback || key;
+  const t = (key, fallback) => {
+    const translation = languages[currentLanguage][key];
+
+    if (!translation) {
+      console.warn(`Missing translation for key "${key}" in language "${currentLanguage}"`);
+    }
+
+    return translation || fallback || key;
+  }
 
   // Save language preference to localStorage whenever it changes
   useEffect(() => {
