@@ -872,17 +872,9 @@ export function delimiterAppendArray(cur, arr, delim) {
 }
 
 export function currentLocale() {
-  // Prioritize user's preferred language
-  const preferredLanguage = localStorage.getItem('preferredLanguage');
-
-  if (preferredLanguage) {
-    return preferredLanguage;
-  }
-
-  // Otherwise, use the first language from the browser settings
   if (navigator.languages && navigator.languages.length) {
 
-	return(navigator.languages[0]);
+    return(navigator.languages[0]);
   }
 
   return(navigator.language ? navigator.language : "en-US");
