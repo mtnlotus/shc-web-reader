@@ -3,7 +3,7 @@ const NA = "Unknown";
 
 // +--------------------+
 // | renderOrganization |
-// | renderOrgOrPerson  | 
+// | renderGenerator    |
 // +--------------------+
 
 export function renderOrganization(org, resources) {
@@ -14,10 +14,11 @@ function renderOrganizationResource(org) {
   return(<div>{org.name}</div>);
 }
 
-export function renderOrgOrPerson(oop, resources) {
+export function renderGenerator(oop, resources) {
 
   const renderMap = {
 	"Organization": renderOrganization,
+	"Device": renderDevice,
 	"any": renderPerson
   };
 
@@ -715,6 +716,37 @@ export function renderReferenceMapThrow(o, resources, refRenderFuncMap) {
   throw new Error("no resource or resource function in map");
 }
 
+// +--------------+
+// | renderDevice |
+// +--------------+
+
+export function renderDevice(device, resources) {
+  return(renderReference(device, resources, renderDeviceResource));
+}
+
+function renderDeviceResource(device) {
+  // Try to get the best display name for the device
+  let displayName = NA;
+
+  // Priority 1: deviceName array (prefer user-friendly or manufacturer name)
+  if (device.deviceName && device.deviceName.length > 0) {
+    displayName = device.deviceName[0].name;
+  }
+  // Priority 2: manufacturer + modelNumber
+  else if (device.manufacturer || device.modelNumber) {
+    const parts = [];
+    if (device.manufacturer) parts.push(device.manufacturer);
+    if (device.modelNumber) parts.push(device.modelNumber);
+    displayName = parts.join(' ');
+  }
+  // Priority 3: type (CodeableConcept)
+  else if (device.type && device.type.text) {
+    displayName = device.type.text;
+  }
+
+  return(<div>{displayName}</div>);
+}
+
 // +------------------+
 // | resolveReference |
 // +------------------+
@@ -840,15 +872,9 @@ export function delimiterAppendArray(cur, arr, delim) {
 }
 
 export function currentLocale() {
-
-  // try to prefer a complete locale vs. just a language
   if (navigator.languages && navigator.languages.length) {
-	for (const i in navigator.languages) {
-	  const l = navigator.languages[i];
-	  if (l.indexOf("-") !== -1) return(l);
-	}
 
-	return(navigator.languages[0]);
+    return(navigator.languages[0]);
   }
 
   return(navigator.language ? navigator.language : "en-US");

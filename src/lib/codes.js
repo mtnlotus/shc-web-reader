@@ -52,16 +52,16 @@ const systems = {
 
   // SNOMED SCT (Global Patient Set)
   "http://snomed.info/sct": {
-	"type": "dictionary",
-	"url": "codes-snomed-sct.json",
-	"plaecHolder": "..."
+    "type": "dictionary",
+    "url": "codes-snomed-sct.json",
+    "placeHolder": "..."
   },
 
   // LOINC
   "http://loinc.org": {
-	"type": "dictionary",
-	"url": "codes-loinc.json",
-	"plaecHolder": "..."
+    "type": "dictionary",
+    "url": "codes-loinc.json",
+    "placeHolder": "..."
   },
 
   // CPT (Docket Snapshot)
