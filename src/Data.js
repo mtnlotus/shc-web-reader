@@ -9,7 +9,6 @@ import * as res from './lib/resources.js';
 import ValidationInfo from './ValidationInfo.js';
 import WrongPatientWarning from './WrongPatientWarning.js';
 import { useLanguage } from './lib/LanguageContext';
-import { detectLanguageFromSHCComprehensive } from './lib/languageDetection.js';
 
 import Coverage from './Coverage.js';
 import ImmunizationHistory from './ImmunizationHistory.js'
@@ -208,11 +207,12 @@ export default function Data({ shx }) {
 
             // Auto-detect and set language from SHC data
             if (result && result.shxStatus === SHX_STATUS_OK) {
-              const detectedLanguage = detectLanguageFromSHCComprehensive(result);
-              if (detectedLanguage) {
-                console.log(`Auto-detected language from SHC: ${detectedLanguage}`);
-                setBundleLanguage(detectedLanguage);
-              }
+                console.info("Bundle language detection currently not used");
+                // const detectedLanguage = detectLanguageFromSHCComprehensive(result);
+                // if (detectedLanguage) {
+                //   console.log(`Auto-detected language from SHC: ${detectedLanguage}`);
+                //   setBundleLanguage(detectedLanguage);
+                // }
             }
         })
         .catch(error => {
