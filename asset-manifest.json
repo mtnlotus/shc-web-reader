@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/shc-web-reader/static/css/main.3d50c483.css",
-    "main.js": "/shc-web-reader/static/js/main.89b90772.js",
+    "main.js": "/shc-web-reader/static/js/main.fd533980.js",
     "static/js/684.94edfa90.chunk.js": "/shc-web-reader/static/js/684.94edfa90.chunk.js",
     "static/js/611.4ae34fe0.chunk.js": "/shc-web-reader/static/js/611.4ae34fe0.chunk.js",
     "static/js/219.3b728ea1.chunk.js": "/shc-web-reader/static/js/219.3b728ea1.chunk.js",
@@ -38,7 +38,7 @@
     "static/media/open-sans-greek-ext-700-normal.woff2": "/shc-web-reader/static/media/open-sans-greek-ext-700-normal.8850c90c4b61e6472307.woff2",
     "index.html": "/shc-web-reader/index.html",
     "main.3d50c483.css.map": "/shc-web-reader/static/css/main.3d50c483.css.map",
-    "main.89b90772.js.map": "/shc-web-reader/static/js/main.89b90772.js.map",
+    "main.fd533980.js.map": "/shc-web-reader/static/js/main.fd533980.js.map",
     "684.94edfa90.chunk.js.map": "/shc-web-reader/static/js/684.94edfa90.chunk.js.map",
     "219.3b728ea1.chunk.js.map": "/shc-web-reader/static/js/219.3b728ea1.chunk.js.map",
     "545.d33b5d32.chunk.js.map": "/shc-web-reader/static/js/545.d33b5d32.chunk.js.map",
@@ -47,6 +47,6 @@
   },
   "entrypoints": [
     "static/css/main.3d50c483.css",
-    "static/js/main.89b90772.js"
+    "static/js/main.fd533980.js"
   ]
 }
