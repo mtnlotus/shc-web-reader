@@ -145,3 +145,52 @@ export function downloadBundleToJSON(data, description) {
     document.body.removeChild(link);
 }
 
+// +------------------+
+// | downloadDocument |
+// +------------------+
+
+/**
+ * Download an embedded document (PDF, image, etc.)
+ * @param {Object} doc - ExtractedDocument object from documentUtils.js
+ */
+export function downloadDocument(doc) {
+  if (!doc || !doc.base64Data || !doc.contentType) {
+    console.error('Invalid document for download');
+    return;
+  }
+
+  const blob = base64ToBlob(doc.base64Data, doc.contentType);
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  const ext = getExtensionFromMimeType(doc.contentType);
+  const sanitizedTitle = (doc.title || 'document').replace(/[^a-z0-9]/gi, '_').substring(0, 50);
+  const filename = `${todayForFilename()}_${sanitizedTitle}.${ext}`;
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
+function base64ToBlob(base64Data, contentType) {
+  const binary = atob(base64Data);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new Blob([bytes], { type: contentType });
+}
+
+function getExtensionFromMimeType(mimeType) {
+  const extensions = {
+    'application/pdf': 'pdf',
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif'
+  };
+  return extensions[mimeType] || 'bin';
+}
+

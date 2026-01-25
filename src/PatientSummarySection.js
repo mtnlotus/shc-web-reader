@@ -13,7 +13,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   const SONLY = "structured_only";
   const NTOGGLE = "narrative_toggle";
   const STOGGLE = "structured_toggle";
-  
+
   const [ viewState, setViewState ] = useState(undefined);
 
   // +---------------------+
@@ -21,7 +21,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   // +---------------------+
 
   const setInitialViewState = () => {
-	
+
 	const narrativeType = (s.text && s.text.div && s.text.status ?
 						   s.text.status : "empty");
 
@@ -29,7 +29,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
 	const haveStructured = (s.entry && s.entry.length > 0);
 
 	let initialViewState;
-	
+
 	if (haveNarrative && !haveStructured) {
 	  // only narrative, ok
 	  initialViewState = NONLY;
@@ -101,7 +101,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   // +-------------+
   // | Main Render |
   // +-------------+
-  
+
   if (viewState === undefined) return(setInitialViewState());
 
   const toggle = (viewState === NTOGGLE || viewState === STOGGLE ? renderToggle() : undefined);

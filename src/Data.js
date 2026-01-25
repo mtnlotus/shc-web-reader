@@ -12,6 +12,7 @@ import WrongPatientWarning from './WrongPatientWarning.js';
 import Coverage from './Coverage.js';
 import ImmunizationHistory from './ImmunizationHistory.js'
 import PatientSummary from './PatientSummary.js';
+import DocumentsSection from './DocumentsSection.js';
 
 export default function Data({ shx }) {
 
@@ -100,7 +101,10 @@ export default function Data({ shx }) {
 	  switch (organized.typeInfo.btype) {
 
 	    case res.BTYPE_COVERAGE:
-		  elt = <Coverage organized={ organized } dcr={ dcr } />;
+		  elt = <>
+		    <Coverage organized={ organized } dcr={ dcr } />
+		    <DocumentsSection organized={ organized } />
+		  </>;
 		  break;
 
 	    case res.BTYPE_PS:
@@ -108,13 +112,25 @@ export default function Data({ shx }) {
 		  break;
 
 	    case res.BTYPE_IMMUNIZATION:
-		  elt = <ImmunizationHistory organized={ organized } dcr={ dcr } />;
+		  elt = <>
+		    <ImmunizationHistory organized={ organized } dcr={ dcr } />
+		    <DocumentsSection organized={ organized } />
+		  </>;
 		  break;
 
 		// >>> ADD MORE RENDERERS HERE <<<
 
 	    default:
-		  elt = <pre><code>{JSON.stringify(bundle.fhir, null, 2)}</code></pre>;
+		  // For unknown bundle types, show documents section plus raw JSON
+		  elt = <>
+		    <DocumentsSection organized={ organized } />
+		    <details style={{ marginTop: '16px' }}>
+		      <summary style={{ cursor: 'pointer', padding: '8px', background: '#f5f5f5' }}>
+		        Raw FHIR Bundle Data
+		      </summary>
+		      <pre><code>{JSON.stringify(bundle.fhir, null, 2)}</code></pre>
+		    </details>
+		  </>;
 		  break;
 	  }
 	}
