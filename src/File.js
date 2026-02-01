@@ -1,5 +1,7 @@
+import { useLanguage } from './lib/LanguageContext';
 
 export default function File({ viewData }) {
+  const { t } = useLanguage();
 
   const handleFileChange = async (evt) => {
 	const reader = new FileReader();
@@ -9,17 +11,15 @@ export default function File({ viewData }) {
 
   return (
 	<div>
-	  <h1>Open File</h1>
+	  <h1>{t('fileTitle')}</h1>
 
 	  <input id="file"
 			 type="file"
 			 accept=".json,.fhir,.smart-health-card"
 			 onChange={handleFileChange} />
-	  
-	  <p>
-		The viewer can typically read files with a <b>.smart-health-card</b> or <b>.fhir</b> extension.
-	  </p>
-	  
+
+	  <p>{t('fileDescription')}</p>
+
 	</div>
   );
 }

@@ -106,7 +106,10 @@ const renderConfig = {
    }
 }
 
-export function renderJSX(tableState, className, rmap, dcr) {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+export function renderJSX(tableState, className, rmap, dcr, t) {
 
   const tables = Object.keys(tableState).reduce((acc, rtype) => {
 
@@ -135,7 +138,7 @@ export function renderJSX(tableState, className, rmap, dcr) {
 	acc.push(
 	  <table key={rtype} className={className}>
 		<tbody>
-		  { render.hdrFn() }
+		  { render.hdrFn(t) }
 		  {rows}
 		</tbody>
 	  </table>
@@ -151,13 +154,16 @@ export function renderJSX(tableState, className, rmap, dcr) {
 // | Condition |
 // +-----------+
 
-function conditionsHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function conditionsHeader(t) {
   return(<tr>
-		   <th>Status</th>
-		   <th>Name</th>
-		   <th>Severity</th>
-		   <th>Onset</th>
-		   <th>Abatement</th>
+		   <th>{t('statusHeader')}</th>
+		   <th>{t('nameHeader')}</th>
+		   <th>{t('severityHeader')}</th>
+		   <th>{t('onsetHeader')}</th>
+		   <th>{t('abatementHeader')}</th>
 		 </tr>);
 }
 
@@ -180,12 +186,15 @@ function conditionsRow(r, rmap, dcr) {
 // | MedicationStatement |
 // +---------------------+
 
-function medStmtHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function medStmtHeader(t) {
   return(<tr>
-		   <th>Status</th>
-		   <th>Name</th>
-		   <th>Effective</th>
-		   <th>Dosage</th>
+		   <th>{t('statusHeader')}</th>
+		   <th>{t('nameHeader')}</th>
+		   <th>{t('effectiveHeader')}</th>
+		   <th>{t('dosageHeader')}</th>
 		 </tr>);
 }
 
@@ -217,14 +226,17 @@ function medStmtCompare(a, b) {
 // | MedicationDispense |
 // +--------------------+
 
-function medDispHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function medDispHeader(t) {
   return(<tr>
-		   <th>Status</th>
-		   <th>Name</th>
-		   <th>Quantity</th>
-		   <th>Days Supply</th>
-		   <th>Delivered</th>
-		   <th>Substitution</th>
+		   <th>{t('statusHeader')}</th>
+		   <th>{t('nameHeader')}</th>
+		   <th>{t('quantityHeader')}</th>
+		   <th>{t('daysSupplyHeader')}</th>
+		   <th>{t('deliveredHeader')}</th>
+		   <th>{t('substitutionHeader')}</th>
 		 </tr>);
 }
 
@@ -260,12 +272,15 @@ function medDispCompare(a, b) {
 // | MedicationRequest  |
 // +--------------------+
 
-function medReqHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function medReqHeader(t) {
   return(<tr>
-		   <th>Status</th>
-		   <th>Name</th>
-		   <th>AuthoredOn</th>
-		   <th>Dosage</th>
+		   <th>{t('statusHeader')}</th>
+		   <th>{t('nameHeader')}</th>
+		   <th>{t('authoredOnHeader')}</th>
+		   <th>{t('dosageHeader')}</th>
 		 </tr>);
 }
 
@@ -312,13 +327,16 @@ function renderMedXNameJSX(r, rmap, dcr) {
 // | AllergyIntolerance |
 // +--------------------+
 
-function allergyHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function allergyHeader(t) {
   return(<tr>
-		   <th>Status</th>
-		   <th>Name</th>
-		   <th>Category</th>
-		   <th>Criticality</th>
-		   <th>Onset</th>
+		   <th>{t('statusHeader')}</th>
+		   <th>{t('nameHeader')}</th>
+		   <th>{t('categoryHeader')}</th>
+		   <th>{t('criticalityHeader')}</th>
+		   <th>{t('onsetHeader')}</th>
 		 </tr>);
 }
 
@@ -342,12 +360,15 @@ function allergyRow(r, rmap, dcr) {
 // | Immunization |
 // +--------------+
 
-function immunizationHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function immunizationHeader(t) {
   return(<tr>
-		   <th>Status</th>
-		   <th>Name</th>
-		   <th>Administered</th>
-		   <th>Reaction</th>
+		   <th>{t('statusHeader')}</th>
+		   <th>{t('nameHeader')}</th>
+		   <th>{t('administeredHeader')}</th>
+		   <th>{t('reactionHeader')}</th>
 		 </tr>);
 }
 
@@ -402,12 +423,15 @@ function renderOneReaction(reaction, rmap, dcr) {
 // | Observation |
 // +-------------+
 
-function obsHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function obsHeader(t) {
   return(<tr>
-		   <th>Performed</th>
-		   <th>Test</th>
-		   <th>Result</th>
-		   <th>Flag</th>
+		   <th>{t('performedHeader')}</th>
+		   <th>{t('testHeader')}</th>
+		   <th>{t('resultHeader')}</th>
+		   <th>{t('flagHeader')}</th>
 		 </tr>);
 }
 
@@ -475,12 +499,15 @@ function obsCompare(a, b) {
 // | Procedure |
 // +-----------+
 
-function procHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function procHeader(t) {
   return(<tr>
-		   <th>Status</th>
-		   <th>Name</th>
-		   <th>Performed</th>
-		   <th>Outcome</th>
+		   <th>{t('statusHeader')}</th>
+		   <th>{t('nameHeader')}</th>
+		   <th>{t('performedHeader')}</th>
+		   <th>{t('outcomeHeader')}</th>
 		 </tr>);
 }
 
@@ -509,16 +536,18 @@ function procCompare(a, b) {
 // |    Plan of Care    |
 // +--------------------+
 
-
-function carePlanHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function carePlanHeader(t) {
   return (
     <tr>
-      <th>Status</th>
-      <th>Intent</th>
-      <th>Activities</th>
-      <th>Category</th>
-      <th>Period Start</th>
-      <th>Note</th>
+      <th>{t('statusHeader')}</th>
+      <th>{t('intentHeader')}</th>
+      <th>{t('activitiesHeader')}</th>
+      <th>{t('categoryHeader')}</th>
+      <th>{t('periodStartHeader')}</th>
+      <th>{t('noteHeader')}</th>
       {/* Add headers for other relevant CarePlan properties */}
     </tr>
   );
@@ -564,16 +593,19 @@ function carePlanRow(r, rmap, dcr) {
 // |      Consent       |
 // +--------------------+
 
-function consentHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function consentHeader(t) {
   return (
     <tr>
-      <th>Status</th>
-      <th>Scope</th>
-      <th>Category</th>
-      <th>Date/Time</th>
-      <th>Policy Rule</th>
-      <th>Provision Period</th>
-      <th>Organization</th>
+      <th>{t('statusHeader')}</th>
+      <th>{t('scopeHeader')}</th>
+      <th>{t('categoryHeader')}</th>
+      <th>{t('dateTimeHeader')}</th>
+      <th>{t('policyRuleHeader')}</th>
+      <th>{t('provisionPeriodForConsentHeader')}</th>
+      <th>{t('organizationHeader')}</th>
     </tr>
   );
 }
@@ -615,14 +647,17 @@ function consentRow(r, rmap, dcr) {
 // | DeviceUseStatement |
 // +--------------------+
 
-function deviceUseStatementHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function deviceUseStatementHeader(t) {
     return (
         <tr>
-            <th>Subject</th>
-            <th>Timing</th>
-            <th>Source</th>
-            <th>Device</th>
-            <th>Body Site</th>
+            <th>{t('subjectHeader')}</th>
+            <th>{t('timingForDeviceUseHeader')}</th>
+            <th>{t('sourceHeader')}</th>
+            <th>{t('deviceHeader')}</th>
+            <th>{t('bodySiteHeader')}</th>
             {/* Add other relevant headers if needed */}
         </tr>
     );
@@ -650,15 +685,18 @@ function deviceUseStatementRow(r, rmap, dcr) {
 // | ClinicalImpression |
 // +--------------------+
 
-function clinicalImpressionHeader() {
+/**
+ * @param {function} t Translation function obtained from useLanguage(), propagated down from a React component.
+ */
+function clinicalImpressionHeader(t) {
     return (
         <tr>
-            <th>Status</th>
-            <th>Description</th>
-            <th>Effective Period/DateTime</th>
-            <th>Summary</th>
-            <th>Subject</th>
-            <th>Assessor</th>
+            <th>{t('statusHeader')}</th>
+            <th>{t('descriptionHeader')}</th>
+            <th>{t('effectivePeriodDateTimeHeader')}</th>
+            <th>{t('summaryHeader')}</th>
+            <th>{t('subjectHeader')}</th>
+            <th>{t('accessorHeader')}</th>
             {/* Add other relevant headers if needed */}
         </tr>
     );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Tab, Tabs } from '@mui/material';
+import { Tab, Tabs, Button } from '@mui/material';
 import About from './About.js';
 import Scan from './Scan.js';
 import File from './File.js';
@@ -9,6 +9,7 @@ import Data from './Data.js';
 import TCPFooter from './TCPFooter.js';
 import { useOptionalFhir } from './OptionalFhir';
 import config from './lib/config.js';
+import { LanguageProvider, useLanguage } from './lib/LanguageContext';
 
 import styles from './App.module.css';
 
@@ -21,11 +22,11 @@ const TabValue = {
   Data: 'data'
 }
 
-export default function App() {
-
+function AppContent() {
   const [tabValue, setTabValue] = useState(config("initialTab"));
   const [scannedSHX, setScannedSHX] = useState(undefined);
   const fhir = useOptionalFhir();
+  const { t, toggleLanguage, currentLanguage } = useLanguage();
 
   const handleTabChange = (evt, newValue) => {
 	setTabValue(newValue);
@@ -52,20 +53,27 @@ export default function App() {
 	<div className={styles.container}>
 
 	  <div className={styles.nav}>
-	  
+
 		<Tabs
 		  value={tabValue}
 		  onChange={handleTabChange}
 		  orientation='horizontal'
 		  variant='scrollable'>
-		  
-		  <Tab label='About' value={TabValue.About} />
-		  { config("showScan") && <Tab label='Scan Card' value={TabValue.Scan} /> }
-		  { config("showFile") && <Tab label='Open File' value={TabValue.File} /> }
-		  { config("showPhoto") && <Tab label='Take Photo'  value={TabValue.Photo} /> }
-		  { fhir && config("showSearch") && <Tab label='Search Record' value={TabValue.Search} /> }
-		  { scannedSHX && <Tab label='Card Details' value={TabValue.Data} /> }
+
+		  <Tab label={t('aboutTab')} value={TabValue.About} />
+		  { config("showScan") && <Tab label={t('scanTab')} value={TabValue.Scan} /> }
+		  { config("showFile") && <Tab label={t('fileTab')} value={TabValue.File} /> }
+		  { config("showPhoto") && <Tab label={t('photoTab')} value={TabValue.Photo} /> }
+		  { fhir && config("showSearch") && <Tab label={t('searchTab')} value={TabValue.Search} /> }
+		  { scannedSHX && <Tab label={t('dataTab')} value={TabValue.Data} /> }
 		</Tabs>
+
+		<Button
+		  onClick={toggleLanguage}
+		  className={styles.languageButton}
+		>
+		  {currentLanguage === 'en' ? 'FR' : 'EN'}
+		</Button>
 
 	  </div>
 
@@ -81,6 +89,14 @@ export default function App() {
 	  { config("tcpFooter") && <TCPFooter /> }
 
 	</div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

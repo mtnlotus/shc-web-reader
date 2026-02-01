@@ -4,6 +4,7 @@ import { Button } from '@mui/material';
 import IFrameSandbox from './IFrameSandbox.js';
 import DOMPurify from 'dompurify';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
+import { useLanguage } from './lib/LanguageContext';
 
 import styles from './PatientSummary.module.css';
 
@@ -14,6 +15,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   const NTOGGLE = "narrative_toggle";
   const STOGGLE = "structured_toggle";
 
+  const { t } = useLanguage();
   const [ viewState, setViewState ] = useState(undefined);
 
   // +---------------------+
@@ -95,7 +97,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   const renderStructured = () => {
 	const tableState = {};
 	for (const i in s.entry) ftabs.addResource(rmap[s.entry[i].reference], tableState, rmap);
-	return(ftabs.renderJSX(tableState, styles.fhirTable, rmap, dcr));
+	return(ftabs.renderJSX(tableState, styles.fhirTable, rmap, dcr, t));
   }
 
   // +-------------+
@@ -109,7 +111,7 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
   const structured = (viewState === SONLY || viewState === STOGGLE ? renderStructured() : undefined);
 
   const fallback = (narrative || structured ? undefined : <div>no data</div>);
-	
+
   return(
 	<>
 	  { structured }
@@ -119,4 +121,3 @@ export default function PatientSummarySection({ s, rmap, dcr }) {
 	</>
   );
 }
-

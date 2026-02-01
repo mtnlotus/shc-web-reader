@@ -9,8 +9,11 @@ import IFrameSandbox from './IFrameSandbox.js';
 import DOMPurify from 'dompurify';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { useLanguage } from './lib/LanguageContext';
 
 export default function PatientSummary({ organized, dcr }) {
+  const { t } = useLanguage();
+
   // +----------------+
   // | Document State |
   // +----------------+
@@ -35,11 +38,7 @@ export default function PatientSummary({ organized, dcr }) {
   const comp = organized.byType.Composition[0];
   const rmap = organized.byId;
 
-  const authors = comp.author.map((a, idx) => (
-    <React.Fragment key={`author-${idx}`}>
-      {futil.renderOrgOrPerson(a, rmap)}
-    </React.Fragment>
-  ));
+  const authors = comp.author.map((a) => futil.renderGenerator(a, rmap));
   const compositionDivTextContent = comp.text && comp.text.div ? comp.text.div : '';
 
   const handleNavigate = (direction) => {
@@ -81,25 +80,28 @@ export default function PatientSummary({ organized, dcr }) {
         {/* Patient Section */}
         {renderSection(
           'Patient',
-          'Patient',
+          t('patient'),
           <span className={styles.patCell}>{futil.renderPerson(comp.subject, rmap)}</span>,
           'row-patient'
         )}
 
-        {/* Dynamic Composition Sections */}
-        {comp.section.map((s, index) => (
-          renderSection(
+        {/* Dynamic Composition Sections with i18n */}
+        {comp.section.map((s, index) => {
+          const codingCode = s.code ? s.code.coding[0].code : "";
+          const translationKey = `ipsSection_${codingCode.replaceAll('-', '_')}`;
+
+          return renderSection(
             s.title,
-            s.title,
+            t(translationKey, s.title),
             <PatientSummarySection s={s} rmap={rmap} dcr={dcr} />,
             `row-section-${index}`
-          )
-        ))}
+          );
+        })}
 
         {/* Documents Section */}
         {documents && documents.length > 0 && renderSection(
           'Documents',
-          `Documents (${documents.length})`,
+          `${t('documents', 'Documents')} (${documents.length})`,
           <DocumentList
             documents={documents}
             onViewDocument={(doc) => {
@@ -113,7 +115,7 @@ export default function PatientSummary({ organized, dcr }) {
         {/* Composition Section */}
         {compositionDivTextContent && renderSection(
           'Composition',
-          'Composition',
+          t('composition'),
           <IFrameSandbox html={DOMPurify.sanitize(compositionDivTextContent)} />,
           'row-composition'
         )}
@@ -121,7 +123,7 @@ export default function PatientSummary({ organized, dcr }) {
         {/* Summary By Section */}
         {renderSection(
           'SummaryBy',
-          'Summary prepared by',
+          t('summaryPreparedBy'),
           authors,
           'row-summaryby'
         )}

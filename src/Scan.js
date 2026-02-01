@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, TextField } from '@mui/material';
 import { looksLikeSHX } from './lib/SHX.js';
 import { looksLikeJSON } from './lib/fhirUtil.js';
+import { useLanguage } from './lib/LanguageContext';
 
 export default function Scan({ viewData }) {
-
+  const { t } = useLanguage();
   const [qrCode, setQRCode] = useState('');
 
   const maybeSHX = useCallback(() => {
@@ -21,7 +22,7 @@ export default function Scan({ viewData }) {
 
   return (
 	<div>
-	  <h1>Scan a Smart Health Card QR Code</h1>
+	  <h1>{t('scanTitle')}</h1>
 
 	  <TextField variant='outlined'
 				 rows={6}
@@ -36,12 +37,8 @@ export default function Scan({ viewData }) {
 	  <Button variant='contained'
 			  disabled={ !maybeSHX() }
 			  onClick={ async () => viewData(qrCode) } >
-		Read Code
+		{t('readCode')}
 	  </Button>
-		
-						
-	
-
 	</div>
   );
 }

@@ -8,6 +8,7 @@ import { getDeferringCodeRenderer } from './lib/codes.js';
 import * as res from './lib/resources.js';
 import ValidationInfo from './ValidationInfo.js';
 import WrongPatientWarning from './WrongPatientWarning.js';
+import { useLanguage } from './lib/LanguageContext';
 
 import Coverage from './Coverage.js';
 import ImmunizationHistory from './ImmunizationHistory.js'
@@ -15,6 +16,7 @@ import PatientSummary from './PatientSummary.js';
 import DocumentsSection from './DocumentsSection.js';
 
 export default function Data({ shx }) {
+  const { t, setBundleLanguage } = useLanguage();
 
   const [passcode, setPasscode] = useState(undefined);
   const [shxResult, setShxResult] = useState(undefined);
@@ -144,10 +146,10 @@ export default function Data({ shx }) {
 		  { elt }
 		</div>
         <div>
-          { elt && <Button onClick={ () => onSaveClick(true) }>save to PDF</Button> }
+          { elt && <Button onClick={ () => onSaveClick(true) }>{t('saveToPDF')}</Button> }
           { elt && fhir && <Button onClick={ () => onSaveClick(false) }>save to ehr</Button> }
-          { elt && <Button onClick={ () => downloadBundleToJSON(bundle.fhir, "fhir-bundle-data") }>Save as FHIR</Button> }
-          <Button onClick={ () => setShowSource(!showSource) }>source</Button>
+          { elt && <Button onClick={ () => downloadBundleToJSON(bundle.fhir, "fhir-bundle-data") }>{t('saveToFHIR')}</Button>}
+          <Button onClick={ () => setShowSource(!showSource) }>{t('source')}</Button>
           { showSource && <pre><code>{JSON.stringify(bundle, null, 2)}</code></pre>}
         </div>
       </>
@@ -218,11 +220,21 @@ export default function Data({ shx }) {
     verifySHX(shx, passcode)
         .then(result => {
             setShxResult(result);
+
+            // Auto-detect and set language from SHC data
+            if (result && result.shxStatus === SHX_STATUS_OK) {
+                console.info("Bundle language detection currently not used");
+                // const detectedLanguage = detectLanguageFromSHCComprehensive(result);
+                // if (detectedLanguage) {
+                //   console.log(`Auto-detected language from SHC: ${detectedLanguage}`);
+                //   setBundleLanguage(detectedLanguage);
+                // }
+            }
         })
         .catch(error => {
             // Handle the error appropriately
         });
-  }, [shx, passcode]);
+  }, [shx, passcode, setBundleLanguage]);
 
 
   useEffect(() => {
