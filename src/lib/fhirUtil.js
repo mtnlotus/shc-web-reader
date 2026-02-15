@@ -383,14 +383,14 @@ export function renderCrazyValue(parent, prefix, dcr) {
   if (parent[prefix + "String"]) return(parent[prefix + "String"]);
   if (parent[prefix + "Boolean"]) return(parent[prefix + "Boolean"]);
   if (parent[prefix + "Integer"]) return(parent[prefix + "Integer"]);
-  if (parent[prefix + "Range"]) return(renderRange(parent[prefix + "Integer"]));
+  if (parent[prefix + "Range"]) return(renderRange(parent[prefix + "Range"]));
   if (parent[prefix + "Ratio"]) return(renderRatio(parent[prefix + "Ratio"]));
   if (parent[prefix + "Time"]) return(parent[prefix + "Time"]);
   if (parent[prefix + "DateTime"]) return(renderDateTime(parent[prefix + "DateTime"]));
   if (parent[prefix + "Period"]) return(renderPeriod(parent[prefix + "Period"]));
   
   if (parent[prefix + "SampledData"] ||
-	  parent[prefix + "Attachement"] ||
+	  parent[prefix + "Attachment"] ||
 	  parent[prefix + "Reference"]) {
 
 	console.error("Unsupported CrazyValue format");
@@ -604,7 +604,7 @@ export function renderTelecomItemJSX(t, withLinks) {
 
   switch (t.system) {
     case "phone":
-	  return(<a href={"tel" + t.value}>{t.value}</a>);
+	  return(<a href={"tel:" + t.value}>{t.value}</a>);
 
     case "email":
 	  return(<a href={"mailto:" + t.value}>{t.value}</a>);
@@ -613,7 +613,7 @@ export function renderTelecomItemJSX(t, withLinks) {
 	  return(<a target="_blank" rel="noreferrer" href={t.value}>{t.value}</a>);
 
     default:
-	  return(<>{t.system}>{t.system}: {t.value}</>);
+	  return(<>{t.system}: {t.value}</>);
   }
   
 }

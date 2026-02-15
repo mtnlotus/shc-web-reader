@@ -233,9 +233,15 @@ export default function Data({ shx }) {
 
 
   useEffect(() => {
-	const checkDcr = async () => { if (await dcr.awaitDeferred()) setDcr(getDeferringCodeRenderer()); }
+	let cancelled = false;
+	const checkDcr = async () => {
+	  if (await dcr.awaitDeferred()) {
+		if (!cancelled) setDcr(getDeferringCodeRenderer());
+	  }
+	}
 	checkDcr();
-  });
+	return () => { cancelled = true; };
+  }, [dcr]);
 
   if (shxResult && shxResult.shxStatus === SHX_STATUS_NEED_PASSCODE) {
 	return(renderNeedPasscode());

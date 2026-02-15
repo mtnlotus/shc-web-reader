@@ -15,7 +15,7 @@ export default function WrongPatientWarning({ organized }) {
 	  if (fhir) fhir.patient.read().then((p) => setPatient(p));
 	}
 	catch (err) {
-	  console.err(err.toString());
+	  console.error(err.toString());
 	}
 	
   }, [organized,fhir]);

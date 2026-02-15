@@ -455,7 +455,7 @@ function addBaseBundle(statusObj) {
 
   obj.contentOK = function() { return(this.fhir && this.certStatus !== CERT_STATUS_INVALID); }
   obj.certValid = function() { return(this.certStatus === CERT_STATUS_VALID); }
-  obj.isVerifiable = function() { return(this.certStauts !== CERT_STATUS_NONE); }
+  obj.isVerifiable = function() { return(this.certStatus !== CERT_STATUS_NONE); }
 
   statusObj.bundles.push(obj);
   statusObj.shxStatus = SHX_STATUS_OK; // at least one bundle in package
