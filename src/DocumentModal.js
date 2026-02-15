@@ -45,6 +45,7 @@ export default function DocumentModal({
   const [scale, setScale] = useState(1.0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rtfHtml, setRtfHtml] = useState(null);
   const canvasRef = useRef(null);
   const renderTaskRef = useRef(null);
 
@@ -60,6 +61,7 @@ export default function DocumentModal({
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setRtfHtml(null);
 
     const loadDocument = async () => {
       try {
@@ -72,6 +74,39 @@ export default function DocumentModal({
             setTotalPages(pdf.numPages);
             setCurrentPage(1);
             setScale(1.0);
+            setLoading(false);
+          }
+        } else if (isRtfType(document.contentType)) {
+          const rtfString = atob(document.base64Data);
+          const buffer = new ArrayBuffer(rtfString.length);
+          const view = new Uint8Array(buffer);
+          for (let i = 0; i < rtfString.length; i++) {
+            view[i] = rtfString.charCodeAt(i);
+          }
+
+          // Dynamically import rtf.js (~965KB) to keep it out of the main bundle.
+          // Most SHL payloads don't contain RTF, so we only load it when needed.
+          const { RTFJS } = await import('rtf.js');
+          RTFJS.loggingEnabled(false);
+          const rtfDoc = new RTFJS.Document(buffer);
+          const elements = await rtfDoc.render();
+
+          const container = window.document.createElement('div');
+          elements.forEach(el => container.appendChild(el));
+
+          // Strip all links from RTF - they are EHR-internal and inaccessible to the viewer
+          container.querySelectorAll('a[href]').forEach(a => {
+            a.removeAttribute('href');
+          });
+
+          const html = DOMPurify.sanitize(container.innerHTML, {
+            ADD_TAGS: ['style'],
+            ADD_ATTR: ['style', 'class']
+          });
+
+          if (!cancelled) {
+            setPdfDoc(null);
+            setRtfHtml(html);
             setLoading(false);
           }
         } else {
@@ -267,8 +302,8 @@ export default function DocumentModal({
         );
       }
 
-      // Sanitize HTML content
-      const sanitizedHtml = DOMPurify.sanitize(htmlContent, {
+      // Sanitize HTML content and add base target for links
+      const sanitizedHtml = '<base target="_blank">' + DOMPurify.sanitize(htmlContent, {
         ADD_TAGS: ['style'],
         ADD_ATTR: ['style', 'class']
       });
@@ -279,40 +314,22 @@ export default function DocumentModal({
             srcDoc={sanitizedHtml}
             title={document.title}
             className={styles.htmlIframe}
-            sandbox="allow-same-origin"
+            sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           />
         </div>
       );
     }
 
-    if (isRtfType(document?.contentType)) {
-      // Decode RTF content and extract plain text
-      let rtfContent;
-      try {
-        rtfContent = atob(document.base64Data);
-      } catch (e) {
-        console.error('Failed to decode RTF content:', e);
-        return (
-          <div className={styles.errorContainer}>
-            <Typography variant="body1">
-              Failed to decode RTF content
-            </Typography>
-          </div>
-        );
-      }
-
-      // Simple RTF to plain text extraction (strips RTF markup)
-      const plainText = rtfContent
-        .replace(/\\par[d]?/g, '\n')  // paragraph breaks
-        .replace(/\\'([0-9a-f]{2})/gi, (match, hex) => String.fromCharCode(parseInt(hex, 16)))  // hex chars
-        .replace(/\\[a-z]+[-]?[0-9]*/gi, '')  // control words
-        .replace(/[{}]/g, '')  // braces
-        .replace(/\r\n/g, '\n')
-        .trim();
-
+    if (isRtfType(document?.contentType) && rtfHtml) {
+      const rtfSrcDoc = '<base target="_blank">' + rtfHtml;
       return (
-        <div className={styles.textContainer}>
-          <pre className={styles.textContent}>{plainText}</pre>
+        <div className={styles.htmlContainer}>
+          <iframe
+            srcDoc={rtfSrcDoc}
+            title={document.title}
+            className={styles.htmlIframe}
+            sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          />
         </div>
       );
     }
