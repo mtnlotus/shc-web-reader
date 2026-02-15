@@ -170,6 +170,14 @@ export const languages = {
     testHeader: 'Test',
     // In the context of device use, timing represents how often a device was used: https://build.fhir.org/deviceusage-definitions.html#DeviceUsage.timing_x_
     timingForDeviceUseHeader: 'Timing',
+
+    // documentUtils.js
+    documents: 'Documents',
+    documentFallbackTitle: 'Document',
+    reportFallbackTitle: 'Report',
+    documentCategory: 'Document',
+    diagnosticReportCategory: 'Diagnostic Report',
+    externalDocumentMessage: 'This data could not be displayed because of a technical formatting issue from the EHR, not an issue with your records.',
   },
   fr: {
     // App.js
@@ -344,5 +352,13 @@ export const languages = {
     testHeader: 'Test',
     // In the context of device use, timing represents how often a device was used: https://build.fhir.org/deviceusage-definitions.html#DeviceUsage.timing_x_
     timingForDeviceUseHeader: 'Fréquence',
+
+    // documentUtils.js
+    documents: 'Documents NEED TRANSLATION',
+    documentFallbackTitle: 'Document NEED TRANSLATION',
+    reportFallbackTitle: 'Report NEED TRANSLATION',
+    documentCategory: 'Document NEED TRANSLATION',
+    diagnosticReportCategory: 'Diagnostic Report NEED TRANSLATION',
+    externalDocumentMessage: 'This data could not be displayed because of a technical formatting issue from the EHR, not an issue with your records. NEED TRANSLATION',
   }
 };

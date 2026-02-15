@@ -97,35 +97,29 @@ export default function Data({ shx }) {
 	const organized = (bundle.contentOK() ? bundle.organized : undefined);
 
 	let elt = undefined;
+	let showAggregateDocumentsSection = true;
 
 	if (organized) {
 
 	  switch (organized.typeInfo.btype) {
 
 	    case res.BTYPE_COVERAGE:
-		  elt = <>
-		    <Coverage organized={ organized } dcr={ dcr } />
-		    <DocumentsSection organized={ organized } />
-		  </>;
+		  elt = <Coverage organized={ organized } dcr={ dcr } />;
 		  break;
 
 	    case res.BTYPE_PS:
 		  elt = <PatientSummary organized={ organized } dcr={ dcr } />;
+		  showAggregateDocumentsSection = false;
 		  break;
 
 	    case res.BTYPE_IMMUNIZATION:
-		  elt = <>
-		    <ImmunizationHistory organized={ organized } dcr={ dcr } />
-		    <DocumentsSection organized={ organized } />
-		  </>;
+		  elt = <ImmunizationHistory organized={ organized } dcr={ dcr } />;
 		  break;
 
 		// >>> ADD MORE RENDERERS HERE <<<
 
 	    default:
-		  // For unknown bundle types, show documents section plus raw JSON
 		  elt = <>
-		    <DocumentsSection organized={ organized } />
 		    <details style={{ marginTop: '16px' }}>
 		      <summary style={{ cursor: 'pointer', padding: '8px', background: '#f5f5f5' }}>
 		        Raw FHIR Bundle Data
@@ -144,6 +138,7 @@ export default function Data({ shx }) {
 		  <ValidationInfo bundle={bundle} />
 		  <WrongPatientWarning organized={organized} />
 		  { elt }
+		  { showAggregateDocumentsSection && organized && <DocumentsSection organized={ organized } /> }
 		</div>
         <div>
           { elt && <Button onClick={ () => onSaveClick(true) }>{t('saveToPDF')}</Button> }

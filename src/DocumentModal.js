@@ -22,9 +22,9 @@ import {
   isHtmlType,
   isRtfType,
   isTextType,
-  base64ToDataUrl,
-  base64ToUint8Array
+  base64ToDataUrl
 } from './lib/documentUtils.js';
+import { b64_to_arr } from './lib/b64.js';
 import { downloadDocument } from './lib/saveDiv.js';
 import styles from './DocumentModal.module.css';
 import DOMPurify from 'dompurify';
@@ -64,7 +64,7 @@ export default function DocumentModal({
     const loadDocument = async () => {
       try {
         if (isPdfType(document.contentType)) {
-          const pdfData = base64ToUint8Array(document.base64Data);
+          const pdfData = b64_to_arr(document.base64Data);
           const pdf = await pdfjs.getDocument({ data: pdfData }).promise;
 
           if (!cancelled) {

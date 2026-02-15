@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import DocumentList from './DocumentList.js';
 import DocumentModal from './DocumentModal.js';
 import { extractDocumentsFromBundle } from './lib/documentUtils.js';
+import { useLanguage } from './lib/LanguageContext';
 
 /**
  * Standalone documents section that can be used for any bundle type.
  * Extracts and displays DocumentReference and DiagnosticReport resources with embedded data.
  */
 export default function DocumentsSection({ organized }) {
+  const { t } = useLanguage();
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   // Extract embedded documents from the bundle
-  const documents = extractDocumentsFromBundle(organized);
+  const documents = extractDocumentsFromBundle(organized, t);
 
   // Don't render if no documents
   if (!documents || documents.length === 0) {
@@ -29,7 +31,7 @@ export default function DocumentsSection({ organized }) {
 
   return (
     <div style={{ marginTop: '24px' }}>
-      <h3 style={{ marginBottom: '16px' }}>Documents ({documents.length})</h3>
+      <h3 style={{ marginBottom: '16px' }}>{t('documents', 'Documents')} ({documents.length})</h3>
       <DocumentList
         documents={documents}
         onViewDocument={(doc) => {

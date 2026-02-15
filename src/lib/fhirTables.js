@@ -132,7 +132,7 @@ export function renderJSX(tableState, className, rmap, dcr, t) {
 	  }
 
 	  return(rowsAcc);
-
+	  
 	}, []);
 		  
 	acc.push(

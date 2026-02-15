@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { IconButton } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ImageIcon from '@mui/icons-material/Image';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ArticleIcon from '@mui/icons-material/Article';
-import * as pdfjs from 'pdfjs-dist';
 import {
   isPdfType,
   isImageType,
@@ -14,21 +14,19 @@ import {
   isRtfType,
   isTextType,
   base64ToDataUrl,
-  base64ToUint8Array,
-  formatFileSize,
-  formatDocumentDate
+  formatFileSize
 } from './lib/documentUtils.js';
+import { renderDate } from './lib/fhirUtil.js';
 import { downloadDocument } from './lib/saveDiv.js';
+import { useLanguage } from './lib/LanguageContext';
 import styles from './DocumentList.module.css';
-
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 // +---------------+
 // | DocumentCard  |
 // +---------------+
 
 function DocumentCard({ document, onView }) {
+  const { t } = useLanguage();
   const [thumbnail, setThumbnail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -37,33 +35,13 @@ function DocumentCard({ document, onView }) {
     let cancelled = false;
 
     const generateThumbnail = async () => {
+      if (document.isExternal) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        if (isPdfType(document.contentType)) {
-          // Generate PDF thumbnail
-          const pdfData = base64ToUint8Array(document.base64Data);
-          const pdf = await pdfjs.getDocument({ data: pdfData }).promise;
-          const page = await pdf.getPage(1);
-
-          const scale = 0.5;
-          const viewport = page.getViewport({ scale });
-
-          const canvas = window.document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          await page.render({
-            canvasContext: context,
-            viewport: viewport
-          }).promise;
-
-          if (!cancelled) {
-            setThumbnail(canvas.toDataURL('image/jpeg', 0.7));
-            setLoading(false);
-          }
-
-          pdf.destroy();
-        } else if (isImageType(document.contentType)) {
+        if (isImageType(document.contentType)) {
           // Use image directly as thumbnail
           if (!cancelled) {
             setThumbnail(base64ToDataUrl(document.base64Data, document.contentType));
@@ -122,6 +100,14 @@ function DocumentCard({ document, onView }) {
   const typeInfo = getTypeInfo();
 
   const renderThumbnail = () => {
+    if (document.isExternal) {
+      return (
+        <div className={`${styles.thumbnailPlaceholder} ${styles.external}`}>
+          <VisibilityOffIcon className={`${styles.placeholderIcon} ${styles.external}`} />
+        </div>
+      );
+    }
+
     if (loading) {
       return (
         <div className={`${styles.thumbnailPlaceholder} ${styles[typeInfo.cssClass]}`}>
@@ -149,7 +135,7 @@ function DocumentCard({ document, onView }) {
   };
 
   return (
-    <div className={styles.card} onClick={handleView}>
+    <div className={`${styles.card} ${document.isExternal ? styles.externalCard : ''}`} onClick={document.isExternal ? undefined : handleView}>
       <div className={styles.thumbnailContainer}>
         {renderThumbnail()}
       </div>
@@ -157,14 +143,22 @@ function DocumentCard({ document, onView }) {
         <div className={styles.title} title={document.title}>
           {document.title}
         </div>
-        <div className={styles.meta}>
-          {document.date && (
-            <span className={styles.date}>{formatDocumentDate(document.date)}</span>
-          )}
-          <span className={styles.size}>{formatFileSize(document.sizeBytes)}</span>
-        </div>
-        {document.category && (
-          <div className={styles.category}>{document.category}</div>
+        {document.isExternal ? (
+          <div className={styles.externalMessage}>
+            {t('externalDocumentMessage', 'This data could not be displayed because of a technical formatting issue from the EHR, not an issue with your records.')}
+          </div>
+        ) : (
+          <>
+            <div className={styles.meta}>
+              {document.rawDate && (
+                <span className={styles.date}>{renderDate(document.rawDate)}</span>
+              )}
+              <span className={styles.size}>{formatFileSize(document.sizeBytes)}</span>
+            </div>
+            {document.category && (
+              <div className={styles.category}>{document.category}</div>
+            )}
+          </>
         )}
       </div>
       <div className={styles.actions} data-html2canvas-ignore="true">
@@ -173,6 +167,7 @@ function DocumentCard({ document, onView }) {
           onClick={handleView}
           className={styles.iconButton}
           title="View"
+          disabled={document.isExternal}
         >
           <VisibilityIcon fontSize="small" />
         </IconButton>
@@ -181,6 +176,7 @@ function DocumentCard({ document, onView }) {
           onClick={handleDownload}
           className={styles.iconButton}
           title="Download"
+          disabled={document.isExternal}
         >
           <DownloadIcon fontSize="small" />
         </IconButton>

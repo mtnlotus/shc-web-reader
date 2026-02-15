@@ -22,7 +22,7 @@ export default function PatientSummary({ organized, dcr }) {
   const [collapsedSections, setCollapsedSections] = useState({});
 
   // Extract embedded documents from the bundle
-  const documents = extractDocumentsFromBundle(organized);
+  const documents = extractDocumentsFromBundle(organized, t);
 
   // Toggle section collapse state
   const toggleSection = (sectionKey) => {
@@ -35,10 +35,10 @@ export default function PatientSummary({ organized, dcr }) {
   // +-------------+
   // | Main Render |
   // +-------------+
-  const comp = organized.byType.Composition[0];
+  const comp = organized.byType.Composition?.[0] || {};
   const rmap = organized.byId;
 
-  const authors = comp.author.map((a) => futil.renderGenerator(a, rmap));
+  const authors = (comp.author || []).map((a) => futil.renderGenerator(a, rmap));
   const compositionDivTextContent = comp.text && comp.text.div ? comp.text.div : '';
 
   const handleNavigate = (direction) => {
@@ -63,7 +63,7 @@ export default function PatientSummary({ organized, dcr }) {
         >
           <span className={styles.sectionTitleText}>{title}</span>
           <span className={styles.collapseIcon}>
-            {isCollapsed ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+            {isCollapsed ? <ExpandMoreIcon fontSize="small" /> : <ExpandLessIcon fontSize="small" />}
           </span>
         </div>
         <div className={isCollapsed ? styles.collapsedContent : styles.sectionContent}>
@@ -86,7 +86,7 @@ export default function PatientSummary({ organized, dcr }) {
         )}
 
         {/* Dynamic Composition Sections with i18n */}
-        {comp.section.map((s, index) => {
+        {(comp.section || []).map((s, index) => {
           const codingCode = s.code ? s.code.coding[0].code : "";
           const translationKey = `ipsSection_${codingCode.replaceAll('-', '_')}`;
 

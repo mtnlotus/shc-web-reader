@@ -4,50 +4,44 @@
 // Supports DocumentReference and DiagnosticReport resources with base64-encoded attachments.
 //
 
-// Global counter for generating unique document IDs
-// eslint-disable-next-line no-unused-vars
-let documentIdCounter = 0;
+import { parseDateTime } from './fhirUtil.js';
+import { b64_to_arr } from './b64.js';
 
 // +------------------+
 // | MIME Type Checks |
 // +------------------+
 
+function normalizeMimeType(contentType) {
+  return contentType?.split(';')[0]?.trim()?.toLowerCase();
+}
+
 export function isPdfType(contentType) {
-  // Handle contentType with parameters (e.g., "application/pdf; charset=utf-8")
-  const mimeType = contentType?.split(';')[0]?.trim()?.toLowerCase();
-  return mimeType === 'application/pdf';
+  return normalizeMimeType(contentType) === 'application/pdf';
 }
 
 export function isImageType(contentType) {
-  const mimeType = contentType?.split(';')[0]?.trim()?.toLowerCase();
-  return mimeType?.startsWith('image/');
+  return normalizeMimeType(contentType)?.startsWith('image/');
 }
 
 export function isHtmlType(contentType) {
-  const mimeType = contentType?.split(';')[0]?.trim()?.toLowerCase();
-  return mimeType === 'text/html';
+  return normalizeMimeType(contentType) === 'text/html';
 }
 
 export function isRtfType(contentType) {
-  const mimeType = contentType?.split(';')[0]?.trim()?.toLowerCase();
+  const mimeType = normalizeMimeType(contentType);
   return mimeType === 'text/rtf' || mimeType === 'application/rtf';
 }
 
 export function isTextType(contentType) {
-  const mimeType = contentType?.split(';')[0]?.trim()?.toLowerCase();
-  return mimeType === 'text/plain';
+  return normalizeMimeType(contentType) === 'text/plain';
 }
 
 export function isSupportedType(contentType) {
-  const mimeType = contentType?.split(';')[0]?.trim()?.toLowerCase();
-  return mimeType === 'application/pdf' ||
-         mimeType === 'image/jpeg' ||
-         mimeType === 'image/png' ||
-         mimeType === 'image/gif' ||
-         mimeType === 'text/html' ||
-         mimeType === 'text/rtf' ||
-         mimeType === 'application/rtf' ||
-         mimeType === 'text/plain';
+  return isPdfType(contentType) ||
+         isImageType(contentType) ||
+         isHtmlType(contentType) ||
+         isRtfType(contentType) ||
+         isTextType(contentType);
 }
 
 // +--------------------+
@@ -59,32 +53,31 @@ export function isSupportedType(contentType) {
  * @param {Object} organized - The organized bundle from resources.js
  * @returns {Array} Array of ExtractedDocument objects
  */
-export function extractDocumentsFromBundle(organized) {
+export function extractDocumentsFromBundle(organized, t) {
   const documents = [];
-
-  // Reset counter for each bundle extraction to ensure consistent IDs
-  documentIdCounter = 0;
 
   // Extract from DocumentReference resources
   const docRefs = organized?.byType?.DocumentReference || [];
   for (let docIdx = 0; docIdx < docRefs.length; docIdx++) {
-    const extracted = extractFromDocumentReference(docRefs[docIdx], docIdx);
+    const extracted = extractFromDocumentReference(docRefs[docIdx], docIdx, t);
     documents.push(...extracted);
   }
 
   // Extract from DiagnosticReport resources (presentedForm)
   const diagReports = organized?.byType?.DiagnosticReport || [];
   for (let reportIdx = 0; reportIdx < diagReports.length; reportIdx++) {
-    const extracted = extractFromDiagnosticReport(diagReports[reportIdx], reportIdx);
+    const extracted = extractFromDiagnosticReport(diagReports[reportIdx], reportIdx, t);
     documents.push(...extracted);
   }
 
-  // Sort by date (most recent first)
+  // Sort by date (most recent first), then by title as secondary
   documents.sort((a, b) => {
-    if (!a.date && !b.date) return 0;
+    if (!a.date && !b.date) return (a.title || '').localeCompare(b.title || '');
     if (!a.date) return 1;
     if (!b.date) return -1;
-    return b.date - a.date;
+    const dateDiff = b.date - a.date;
+    if (dateDiff !== 0) return dateDiff;
+    return (a.title || '').localeCompare(b.title || '');
   });
 
   return documents;
@@ -96,7 +89,7 @@ export function extractDocumentsFromBundle(organized) {
  * @param {number} resourceIndex - Index of this resource in the array
  * @returns {Array} Array of ExtractedDocument objects
  */
-export function extractFromDocumentReference(docRef, resourceIndex = 0) {
+export function extractFromDocumentReference(docRef, resourceIndex = 0, t) {
   const documents = [];
 
   if (!docRef?.content) return documents;
@@ -107,22 +100,26 @@ export function extractFromDocumentReference(docRef, resourceIndex = 0) {
     const content = contents[i];
     const attachment = content?.attachment;
 
-    if (!attachment?.data) continue;
-    if (!isSupportedType(attachment.contentType)) continue;
+    if (!attachment?.data && !attachment?.url) continue;
 
-    const uniqueId = documentIdCounter++;
+    const isExternal = !attachment.data && !!attachment.url;
+
+    if (!isExternal && !isSupportedType(attachment.contentType)) continue;
+
     documents.push({
-      id: `docref-${uniqueId}-${docRef.id || resourceIndex}-${i}`,
+      id: `docref-${docRef.id || resourceIndex}-${i}`,
       resourceType: 'DocumentReference',
       resourceId: docRef.id,
-      title: getDocumentTitle(docRef, attachment, i),
+      title: getDocumentTitle(docRef, attachment, i, t),
       contentType: attachment.contentType,
-      base64Data: attachment.data,
-      date: parseDocumentDate(docRef.date || docRef.created),
+      base64Data: attachment.data || null,
+      rawDate: docRef.date || docRef.created || null,
+      date: parseFhirDate(docRef.date || docRef.created),
       status: docRef.status || 'current',
       description: docRef.description || attachment.title || '',
-      category: getDocumentCategory(docRef),
-      sizeBytes: estimateBase64Size(attachment.data)
+      category: getDocumentCategory(docRef, t),
+      sizeBytes: isExternal ? 0 : estimateBase64Size(attachment.data),
+      isExternal
     });
   }
 
@@ -135,7 +132,7 @@ export function extractFromDocumentReference(docRef, resourceIndex = 0) {
  * @param {number} resourceIndex - Index of this resource in the array
  * @returns {Array} Array of ExtractedDocument objects
  */
-export function extractFromDiagnosticReport(diagReport, resourceIndex = 0) {
+export function extractFromDiagnosticReport(diagReport, resourceIndex = 0, t) {
   const documents = [];
 
   if (!diagReport?.presentedForm) return documents;
@@ -147,22 +144,26 @@ export function extractFromDiagnosticReport(diagReport, resourceIndex = 0) {
   for (let i = 0; i < forms.length; i++) {
     const attachment = forms[i];
 
-    if (!attachment?.data) continue;
-    if (!isSupportedType(attachment.contentType)) continue;
+    if (!attachment?.data && !attachment?.url) continue;
 
-    const uniqueId = documentIdCounter++;
+    const isExternal = !attachment.data && !!attachment.url;
+
+    if (!isExternal && !isSupportedType(attachment.contentType)) continue;
+
     documents.push({
-      id: `diagreport-${uniqueId}-${diagReport.id || resourceIndex}-${i}`,
+      id: `diagreport-${diagReport.id || resourceIndex}-${i}`,
       resourceType: 'DiagnosticReport',
       resourceId: diagReport.id,
-      title: getDiagnosticReportTitle(diagReport, attachment, i),
+      title: getDiagnosticReportTitle(diagReport, attachment, i, t),
       contentType: attachment.contentType,
-      base64Data: attachment.data,
-      date: parseDocumentDate(diagReport.effectiveDateTime || diagReport.issued),
+      base64Data: attachment.data || null,
+      rawDate: diagReport.effectiveDateTime || diagReport.issued || null,
+      date: parseFhirDate(diagReport.effectiveDateTime || diagReport.issued),
       status: diagReport.status || 'final',
       description: attachment.title || diagReport.conclusion || '',
-      category: getDiagnosticReportCategory(diagReport),
-      sizeBytes: estimateBase64Size(attachment.data)
+      category: getDiagnosticReportCategory(diagReport, t),
+      sizeBytes: isExternal ? 0 : estimateBase64Size(attachment.data),
+      isExternal
     });
   }
 
@@ -173,7 +174,7 @@ export function extractFromDiagnosticReport(diagReport, resourceIndex = 0) {
 // | Title Extraction  |
 // +-------------------+
 
-function getDocumentTitle(docRef, attachment, index) {
+function getDocumentTitle(docRef, attachment, index, t) {
   // Try various sources for the title
   if (attachment?.title) return attachment.title;
   if (docRef.description) return docRef.description;
@@ -182,44 +183,44 @@ function getDocumentTitle(docRef, attachment, index) {
   if (docRef.category?.[0]?.text) return docRef.category[0].text;
   if (docRef.category?.[0]?.coding?.[0]?.display) return docRef.category[0].coding[0].display;
 
-  return `Document ${index + 1}`;
+  return `${t('documentFallbackTitle', 'Document')} ${index + 1}`;
 }
 
-function getDiagnosticReportTitle(diagReport, attachment, index) {
+function getDiagnosticReportTitle(diagReport, attachment, index, t) {
   if (attachment?.title) return attachment.title;
   if (diagReport.code?.text) return diagReport.code.text;
   if (diagReport.code?.coding?.[0]?.display) return diagReport.code.coding[0].display;
   if (diagReport.category?.[0]?.text) return diagReport.category[0].text;
 
-  return `Report ${index + 1}`;
+  return `${t('reportFallbackTitle', 'Report')} ${index + 1}`;
 }
 
 // +---------------------+
 // | Category Extraction |
 // +---------------------+
 
-function getDocumentCategory(docRef) {
+function getDocumentCategory(docRef, t) {
   if (docRef.category?.[0]?.text) return docRef.category[0].text;
   if (docRef.category?.[0]?.coding?.[0]?.display) return docRef.category[0].coding[0].display;
   if (docRef.type?.text) return docRef.type.text;
   if (docRef.type?.coding?.[0]?.display) return docRef.type.coding[0].display;
-  return 'Document';
+  return t('documentCategory', 'Document');
 }
 
-function getDiagnosticReportCategory(diagReport) {
+function getDiagnosticReportCategory(diagReport, t) {
   if (diagReport.category?.[0]?.text) return diagReport.category[0].text;
   if (diagReport.category?.[0]?.coding?.[0]?.display) return diagReport.category[0].coding[0].display;
-  return 'Diagnostic Report';
+  return t('diagnosticReportCategory', 'Diagnostic Report');
 }
 
 // +-------------------+
 // | Date Parsing      |
 // +-------------------+
 
-function parseDocumentDate(dateString) {
+function parseFhirDate(dateString) {
   if (!dateString) return null;
   try {
-    return new Date(dateString);
+    return parseDateTime(dateString);
   } catch {
     return null;
   }
@@ -240,6 +241,7 @@ export function formatFileSize(bytes) {
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
+  // parseFloat strips trailing zeros from toFixed output (e.g., "1.0" -> 1, "2.5" -> 2.5)
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
@@ -264,26 +266,7 @@ export function base64ToDataUrl(base64Data, contentType) {
  * @returns {Blob} Binary blob
  */
 export function base64ToBlob(base64Data, contentType) {
-  const binary = atob(base64Data);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new Blob([bytes], { type: contentType });
-}
-
-/**
- * Convert base64 data to Uint8Array for PDF.js.
- * @param {string} base64Data - The base64 encoded data
- * @returns {Uint8Array} Binary array
- */
-export function base64ToUint8Array(base64Data) {
-  const binary = atob(base64Data);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
+  return new Blob([b64_to_arr(base64Data)], { type: contentType });
 }
 
 // +-------------------+
@@ -291,7 +274,7 @@ export function base64ToUint8Array(base64Data) {
 // +-------------------+
 
 export function getExtensionFromMimeType(mimeType) {
-  const baseMime = mimeType?.split(';')[0]?.trim()?.toLowerCase();
+  const baseMime = normalizeMimeType(mimeType);
   const extensions = {
     'application/pdf': 'pdf',
     'image/jpeg': 'jpg',
@@ -305,20 +288,5 @@ export function getExtensionFromMimeType(mimeType) {
   return extensions[baseMime] || 'bin';
 }
 
-// +-------------------+
-// | Date Formatting   |
-// +-------------------+
 
-export function formatDocumentDate(date) {
-  if (!date) return '';
-  try {
-    return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  } catch {
-    return '';
-  }
-}
 

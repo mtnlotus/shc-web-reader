@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import { base64ToBlob, getExtensionFromMimeType } from './documentUtils.js';
 
 // +-------------------+
 // | saveDivToPdfFile  |
@@ -143,6 +144,7 @@ export function downloadBundleToJSON(data, description) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
 }
 
 // +------------------+
@@ -175,22 +177,4 @@ export function downloadDocument(doc) {
   window.URL.revokeObjectURL(url);
 }
 
-function base64ToBlob(base64Data, contentType) {
-  const binary = atob(base64Data);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new Blob([bytes], { type: contentType });
-}
-
-function getExtensionFromMimeType(mimeType) {
-  const extensions = {
-    'application/pdf': 'pdf',
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/gif': 'gif'
-  };
-  return extensions[mimeType] || 'bin';
-}
 
