@@ -17,13 +17,12 @@ export function getConfig() {
   // TODO - NYI override config for SMART on FHIR launch
   const overrideSource = document.location.search;
 
-  // arguably this is weird --- because we're going to pick up variables
-  // that aren't part of "config" per se. But I like it anyways because
-  // it means we don't have to call out specific property names here
-  // yet again --- we can just add defaults to DEFAULT_CONFIG and use
-  // them in app code and we're golden.
+  // Only allow URL params that match known config keys to prevent
+  // arbitrary parameter injection from malicious links
   const overrides = new URLSearchParams(overrideSource);
-  overrides.forEach( (value, key) => { cfg[key] = value; });
+  overrides.forEach( (value, key) => {
+    if (key in DEFAULT_CONFIG) cfg[key] = value;
+  });
 
   // lastly if we have a hash value, add it as "shx" ... this is
   // incoming from shlink.htm which is acting as the viewer url for a SHL

@@ -66,7 +66,7 @@ function addDoc(docs, fhirDoc, fhirContent, icontent, highPriority) {
 				  (getDocAutoTitle(fhirDoc, fhirContent))));
 
   const sortDate = (highPriority ? new Date()
-					: Date.parse(fhirDoc.Date ? fhirDoc.date : '1970-01-01'));
+					: Date.parse(fhirDoc.date ? fhirDoc.date : '1970-01-01'));
   
   docs.push({
 	"id": fhirDoc.id,

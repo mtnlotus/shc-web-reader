@@ -13,6 +13,7 @@ import { useLanguage } from './lib/LanguageContext';
 import Coverage from './Coverage.js';
 import ImmunizationHistory from './ImmunizationHistory.js'
 import PatientSummary from './PatientSummary.js';
+import DocumentsSection from './DocumentsSection.js';
 
 export default function Data({ shx }) {
   const { t, setBundleLanguage } = useLanguage();
@@ -96,6 +97,7 @@ export default function Data({ shx }) {
 	const organized = (bundle.contentOK() ? bundle.organized : undefined);
 
 	let elt = undefined;
+	let showAggregateDocumentsSection = true;
 
 	if (organized) {
 
@@ -107,6 +109,7 @@ export default function Data({ shx }) {
 
 	    case res.BTYPE_PS:
 		  elt = <PatientSummary organized={ organized } dcr={ dcr } />;
+		  showAggregateDocumentsSection = false;
 		  break;
 
 	    case res.BTYPE_IMMUNIZATION:
@@ -116,7 +119,14 @@ export default function Data({ shx }) {
 		// >>> ADD MORE RENDERERS HERE <<<
 
 	    default:
-		  elt = <pre><code>{JSON.stringify(bundle.fhir, null, 2)}</code></pre>;
+		  elt = <>
+		    <details style={{ marginTop: '16px' }}>
+		      <summary style={{ cursor: 'pointer', padding: '8px', background: '#f5f5f5' }}>
+		        Raw FHIR Bundle Data
+		      </summary>
+		      <pre><code>{JSON.stringify(bundle.fhir, null, 2)}</code></pre>
+		    </details>
+		  </>;
 		  break;
 	  }
 	}
@@ -128,6 +138,7 @@ export default function Data({ shx }) {
 		  <ValidationInfo bundle={bundle} />
 		  <WrongPatientWarning organized={organized} />
 		  { elt }
+		  { showAggregateDocumentsSection && organized && <DocumentsSection organized={ organized } /> }
 		</div>
         <div>
           { elt && <Button onClick={ () => onSaveClick(true) }>{t('saveToPDF')}</Button> }
@@ -222,9 +233,15 @@ export default function Data({ shx }) {
 
 
   useEffect(() => {
-	const checkDcr = async () => { if (await dcr.awaitDeferred()) setDcr(getDeferringCodeRenderer()); }
+	let cancelled = false;
+	const checkDcr = async () => {
+	  if (await dcr.awaitDeferred()) {
+		if (!cancelled) setDcr(getDeferringCodeRenderer());
+	  }
+	}
 	checkDcr();
-  });
+	return () => { cancelled = true; };
+  }, [dcr]);
 
   if (shxResult && shxResult.shxStatus === SHX_STATUS_NEED_PASSCODE) {
 	return(renderNeedPasscode());
