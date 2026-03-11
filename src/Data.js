@@ -8,12 +8,15 @@ import { getDeferringCodeRenderer } from './lib/codes.js';
 import * as res from './lib/resources.js';
 import ValidationInfo from './ValidationInfo.js';
 import WrongPatientWarning from './WrongPatientWarning.js';
+import { useLanguage } from './lib/LanguageContext';
 
 import Coverage from './Coverage.js';
 import ImmunizationHistory from './ImmunizationHistory.js'
 import PatientSummary from './PatientSummary.js';
+import DocumentsSection from './DocumentsSection.js';
 
 export default function Data({ shx }) {
+  const { t, setBundleLanguage } = useLanguage();
 
   const [passcode, setPasscode] = useState(undefined);
   const [shxResult, setShxResult] = useState(undefined);
@@ -94,6 +97,7 @@ export default function Data({ shx }) {
 	const organized = (bundle.contentOK() ? bundle.organized : undefined);
 
 	let elt = undefined;
+	let showAggregateDocumentsSection = true;
 
 	if (organized) {
 
@@ -105,6 +109,7 @@ export default function Data({ shx }) {
 
 	    case res.BTYPE_PS:
 		  elt = <PatientSummary organized={ organized } dcr={ dcr } />;
+		  showAggregateDocumentsSection = false;
 		  break;
 
 	    case res.BTYPE_IMMUNIZATION:
@@ -114,7 +119,14 @@ export default function Data({ shx }) {
 		// >>> ADD MORE RENDERERS HERE <<<
 
 	    default:
-		  elt = <pre><code>{JSON.stringify(bundle.fhir, null, 2)}</code></pre>;
+		  elt = <>
+		    <details style={{ marginTop: '16px' }}>
+		      <summary style={{ cursor: 'pointer', padding: '8px', background: '#f5f5f5' }}>
+		        Raw FHIR Bundle Data
+		      </summary>
+		      <pre><code>{JSON.stringify(bundle.fhir, null, 2)}</code></pre>
+		    </details>
+		  </>;
 		  break;
 	  }
 	}
@@ -126,12 +138,13 @@ export default function Data({ shx }) {
 		  <ValidationInfo bundle={bundle} />
 		  <WrongPatientWarning organized={organized} />
 		  { elt }
+		  { showAggregateDocumentsSection && organized && <DocumentsSection organized={ organized } /> }
 		</div>
         <div>
-          { elt && <Button onClick={ () => onSaveClick(true) }>save to PDF</Button> }
+          { elt && <Button onClick={ () => onSaveClick(true) }>{t('saveToPDF')}</Button> }
           { elt && fhir && <Button onClick={ () => onSaveClick(false) }>save to ehr</Button> }
-          { elt && <Button onClick={ () => downloadBundleToJSON(bundle.fhir, "fhir-bundle-data") }>Save as FHIR</Button> }
-          <Button onClick={ () => setShowSource(!showSource) }>source</Button>
+          { elt && <Button onClick={ () => downloadBundleToJSON(bundle.fhir, "fhir-bundle-data") }>{t('saveToFHIR')}</Button>}
+          <Button onClick={ () => setShowSource(!showSource) }>{t('source')}</Button>
           { showSource && <pre><code>{JSON.stringify(bundle, null, 2)}</code></pre>}
         </div>
       </>
@@ -202,17 +215,33 @@ export default function Data({ shx }) {
     verifySHX(shx, passcode)
         .then(result => {
             setShxResult(result);
+
+            // Auto-detect and set language from SHC data
+            if (result && result.shxStatus === SHX_STATUS_OK) {
+                console.info("Bundle language detection currently not used");
+                // const detectedLanguage = detectLanguageFromSHCComprehensive(result);
+                // if (detectedLanguage) {
+                //   console.log(`Auto-detected language from SHC: ${detectedLanguage}`);
+                //   setBundleLanguage(detectedLanguage);
+                // }
+            }
         })
         .catch(error => {
             // Handle the error appropriately
         });
-  }, [shx, passcode]);
+  }, [shx, passcode, setBundleLanguage]);
 
 
   useEffect(() => {
-	const checkDcr = async () => { if (await dcr.awaitDeferred()) setDcr(getDeferringCodeRenderer()); }
+	let cancelled = false;
+	const checkDcr = async () => {
+	  if (await dcr.awaitDeferred()) {
+		if (!cancelled) setDcr(getDeferringCodeRenderer());
+	  }
+	}
 	checkDcr();
-  });
+	return () => { cancelled = true; };
+  }, [dcr]);
 
   if (shxResult && shxResult.shxStatus === SHX_STATUS_NEED_PASSCODE) {
 	return(renderNeedPasscode());

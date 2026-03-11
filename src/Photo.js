@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@mui/material';
 import config from './lib/config.js';
 import QrScanner from 'qr-scanner';
+import { useLanguage } from './lib/LanguageContext';
 
 export default function Photo({ viewData }) {
-
+  const { t } = useLanguage();
   const [haveCamera, setHaveCamera] = useState(true);
   const [paused, setPaused] = useState(false);
 
@@ -68,12 +69,16 @@ export default function Photo({ viewData }) {
   return (
 	<div>
 
-	  <h1>Capture Smart Health QR Code Image</h1>
-	  
+	  <h1>{t('captureTitle')}</h1>
+
+	  <p style={{ color: '#666', marginBottom: '20px' }}>
+		{t('scanDescription')}
+	  </p>
+
 	  { paused &&
 		<div>
-		  <p>Camera paused</p>
-		  <Button variant='contained' onClick={unPauseCameraClick}>Restart</Button>
+		  <p>{t('cameraPaused')}</p>
+		  <Button variant='contained' onClick={unPauseCameraClick}>{t('restartCamera')}</Button>
 		</div> }
 
 	  { haveCamera &&
@@ -81,15 +86,15 @@ export default function Photo({ viewData }) {
           <video id='video' style={{ width: '100%', maxWidth: '400px', height: 'auto' }}></video>
 		  <div id='switchCamera' style={{ display: 'none' }}>
 			<Button variant='text' onClick={ window.sc.switchCameraClick }>
-			  Change Camera
-			</Button> 
+				{t('changeCamera')}
+			</Button>
 		  </div>
 		</>
 	  }
 
 	  { !haveCamera &&
-		<Button variant='contained' onClick={openCameraClick}>Open Camera</Button> }
-	  
+		<Button variant='contained' onClick={openCameraClick}>{t('openCamera')}</Button> }
+
 	</div>
   );
 }

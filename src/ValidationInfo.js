@@ -1,33 +1,32 @@
 import { CERT_STATUS_VALID, CERT_STATUS_INVALID } from './lib/SHX.js';
 
 import styles from './ValidationInfo.module.css';
+import { useLanguage } from './lib/LanguageContext';
 
 export default function ValidationInfo({ bundle }) {
+  const { t, currentLanguage } = useLanguage();
 
   // +-------------+
   // | renderValid |
   // +-------------+
 
   const renderValid = () => {
-	
+
 	let issuer = bundle.issuerName;
 	if (bundle.issuerURL) {
 	  issuer = <a target="_blank" rel="noreferrer"
 				  href={bundle.issuerURL}>{issuer}</a>;
 	}
 
-	const issueDate = bundle.issueDate.toLocaleString('en-US', {
+	const issueDate = bundle.issueDate.toLocaleString(currentLanguage === 'fr' ? 'fr-CA' : 'en-US', {
 	  month: 'long', day: 'numeric', year: 'numeric' });
 
 	const revocationQualifier =
-		  (bundle.supportsRevocation ? '' :
-		   <> Because this issuer does not support revocation,
-		   details may have changed since that time.</>);
+		  (bundle.supportsRevocation ? '' : <> {t('noRevocation')} </>);
 
 	return(
 	  <div className={styles.container}>
-		This card is <span className={styles.green}>valid</span> and
-		was issued by <b>{issuer}</b> on <b>{issueDate}</b>.
+		{t('validation1')} <span className={styles.green}>{t('validation2')}</span> {t('validation3')} <b>{issuer}</b> {t('validation4')} <b>{issueDate}</b>.
 		{revocationQualifier}
 	  </div>
 	);
@@ -36,14 +35,20 @@ export default function ValidationInfo({ bundle }) {
   // +---------------+
   // | renderInvalid |
   // +---------------+
-  
+
   const renderInvalid = () => {
 
-	const reasons = bundle.reasons.map(r => <li key={r}>{r}</li>);
-	
+	const reasons = bundle.reasons.map(r => (
+	  <li key={r}>
+		{currentLanguage === 'fr'
+		  ? (r === 'bad-signature' ? 'Mauvaise signature' : r === 'failed-validation' ? 'Validation échouée' : r)
+		  : r}
+	  </li>
+	));
+
 	return(
 	  <div className={styles.container}>
-		This card is <span className={styles.red}>invalid</span>.
+		{t('validation1')} <span className={styles.red}>{t('invalidValidation')}</span>.
 		<ul>{reasons}</ul>
 	  </div>
 	);
